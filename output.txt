@@ -1,0 +1,11 @@
+Without mutex
+Counter: 1760607
+Time: 13943 us
+
+With mutex
+Counter: 4000000
+Time: 218517 us
+
+With atomic
+Counter: 4000000
+Time: 80722 us
