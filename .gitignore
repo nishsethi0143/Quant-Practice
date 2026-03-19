@@ -1,0 +1,7 @@
+*.exe
+*.obj
+*.o
+
+# Office autosave/temp files
+~$*.docx
+~$*.xlsx
