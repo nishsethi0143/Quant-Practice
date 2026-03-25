@@ -1,58 +1,78 @@
-# C++ Counter Synchronization Demo
+# Concurrency Learning Project (C++)
 
-Last updated: March 19, 2026
+Last updated: March 25, 2026
 
-This project demonstrates the effect of synchronization in multithreaded counter increments.
+This workspace contains multiple C++ concurrency examples, from beginner-safe synchronization to lock-free techniques used in low-latency systems.
 
-## What it compares
+## Project goals
 
-The program in `1.cpp` runs three scenarios with 4 threads, each doing 1,000,000 increments:
+1. Show what goes wrong with unsynchronized shared state.
+2. Compare mutex and atomic synchronization for correctness and speed.
+3. Introduce ABA protection and safe memory reclamation in lock-free structures.
+4. Provide runnable stress tests and narrative documentation for learning.
 
-1. Without mutex (data race)
-2. With mutex (`std::mutex` + `std::lock_guard`)
-3. With atomic (`std::atomic<long long>`)
+## Code map
 
-## Expected behavior
+1. `1.cpp`
+	- Counter increment comparison:
+	  - no mutex (data race)
+	  - mutex (`std::mutex` + `std::lock_guard`)
+	  - atomic (`std::atomic<long long>`)
+2. `2.cpp`
+	- Additional concurrency exercise (see source for details).
+3. `3.cpp`
+	- Lock-free stack comparison:
+	  - tagged pointer style CAS (index + version packed into one atomic word)
+	  - hazard pointer style deferred reclamation
+	- Includes a multithreaded stress test with throughput reporting.
 
-- Without mutex: final counter is usually incorrect due to race conditions.
-- With mutex: final counter is correct (`4,000,000`) but slower due to lock contention.
-- With atomic: final counter is correct (`4,000,000`) and typically faster than mutex in this test.
+## Documentation map
+
+1. `README.md`
+	- Project-level overview and run instructions.
+2. `1.md`
+	- Deep line-by-line walkthrough of `1.cpp`.
+3. `journey.md`
+	- Detailed, end-to-end explanation of lock-free stack design in `3.cpp`, including ABA, hazard pointers, memory ordering, and benchmark interpretation.
 
 ## Build and run
 
-### Option 1: g++ (MinGW/WinLibs)
+### g++ (MinGW/WinLibs)
 
 ```bash
-g++ -std=c++20 -O2 -pthread 1.cpp -o app.exe
-app.exe
+g++ -std=c++20 -O2 -pthread 1.cpp -o 1.exe
+./1.exe
+
+g++ -std=c++20 -O2 -pthread 2.cpp -o 2.exe
+./2.exe
+
+g++ -std=c++20 -O2 -pthread 3.cpp -o 3.exe
+./3.exe
 ```
 
-### Option 2: MSVC (Developer Command Prompt)
+### MSVC (Developer Command Prompt)
 
 ```bat
 cl /std:c++20 /O2 /EHsc 1.cpp
 1.exe
+
+cl /std:c++20 /O2 /EHsc 2.cpp
+2.exe
+
+cl /std:c++20 /O2 /EHsc 3.cpp
+3.exe
 ```
 
-Note: The code redirects output to `output.txt` when `ONLINE_JUDGE` is not defined.
+## What to expect from 3.cpp
 
-## Sample output
+1. Tagged-pointer stack typically shows strong pop throughput due to simple node storage and no dynamic allocation on pop.
+2. Hazard-pointer stack pays extra pop overhead for safe reclamation checks and retire-scan logic.
+3. Push performance can vary by machine and allocator behavior.
 
-```text
-Without mutex
-Counter: 1492992
-Time: 16474 us
+Important: The current `3.cpp` is a learning demo, not production-ready HFT infrastructure.
 
-With mutex
-Counter: 4000000
-Time: 201133 us
+## Suggested study order
 
-With atomic
-Counter: 4000000
-Time: 76565 us
-```
-
-## Files
-
-- `1.cpp`: source code for the synchronization comparison.
-- `output.txt`: captured program output.
+1. Run `1.cpp` and read `1.md`.
+2. Run `3.cpp` and read `journey.md`.
+3. Modify thread count and operations per thread in `3.cpp`, then re-run and compare results.
