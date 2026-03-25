@@ -19,7 +19,10 @@ This workspace contains multiple C++ concurrency examples, from beginner-safe sy
 	  - mutex (`std::mutex` + `std::lock_guard`)
 	  - atomic (`std::atomic<long long>`)
 2. `2.cpp`
-	- Additional concurrency exercise (see source for details).
+	- False sharing benchmark:
+	  - bad layout (two atomics likely sharing a cache line)
+	  - padded 64-byte layout
+	  - hardware-aware layout using `std::hardware_destructive_interference_size`
 3. `3.cpp`
 	- Lock-free stack comparison:
 	  - tagged pointer style CAS (index + version packed into one atomic word)
@@ -32,7 +35,9 @@ This workspace contains multiple C++ concurrency examples, from beginner-safe sy
 	- Project-level overview and run instructions.
 2. `1.md`
 	- Deep line-by-line walkthrough of `1.cpp`.
-3. `journey.md`
+3. `2.md`
+	- Deep explanation of false sharing, cache lines, and why padding improves throughput in `2.cpp`.
+4. `journey.md`
 	- Detailed, end-to-end explanation of lock-free stack design in `3.cpp`, including ABA, hazard pointers, memory ordering, and benchmark interpretation.
 
 ## Build and run
@@ -71,8 +76,15 @@ cl /std:c++20 /O2 /EHsc 3.cpp
 
 Important: The current `3.cpp` is a learning demo, not production-ready HFT infrastructure.
 
+## What to expect from 2.cpp
+
+1. `BadLayout` is usually the slowest because both counters can bounce the same cache line between cores.
+2. `GoodLayout` and `OptimizedLayout` are usually faster because they reduce destructive interference.
+3. Relative speedups vary per CPU, cache hierarchy, and OS scheduler behavior.
+
 ## Suggested study order
 
 1. Run `1.cpp` and read `1.md`.
-2. Run `3.cpp` and read `journey.md`.
-3. Modify thread count and operations per thread in `3.cpp`, then re-run and compare results.
+2. Run `2.cpp` and read `2.md`.
+3. Run `3.cpp` and read `journey.md`.
+4. Modify thread count and operations per thread in `2.cpp` and `3.cpp`, then re-run and compare trends.
