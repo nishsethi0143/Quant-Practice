@@ -1,8 +1,47 @@
 # Lock-Free Stack Learning Journey (from basics to HFT mindset)
 
-Last updated: March 25, 2026
+Last updated: April 3, 2026
 
 This guide explains the ideas behind `3.cpp` in depth so a new engineer can understand both correctness and performance trade-offs.
+
+## Timeline cross-links
+
+### March 25, 2026
+
+1. [README.md](README.md#timeline-2026-03-25)
+2. [1.md](1.md#timeline-2026-03-25)
+3. [2.md](2.md#timeline-2026-03-25)
+4. [3.md](3.md#timeline-2026-03-25)
+5. [journey.md](journey.md#timeline-2026-03-25)
+
+### April 3, 2026
+
+1. [README.md](README.md#timeline-2026-04-03)
+2. [1.md](1.md#timeline-2026-04-03)
+3. [2.md](2.md#timeline-2026-04-03)
+4. [3.md](3.md#timeline-2026-04-03)
+5. [journey.md](journey.md#timeline-2026-04-03)
+
+## Process timeline (day-by-day)
+
+<a id="timeline-2026-03-25"></a>
+### March 25, 2026 - lock-free foundation
+
+1. Established the two core safety tracks in `3.cpp`:
+- versioned tagged-head CAS for ABA resistance
+- hazard-pointer retire/scan flow for memory safety
+2. Added contention benchmark for push and pop throughput.
+3. Focus:
+- correctness mechanics first, performance interpretation second.
+
+<a id="timeline-2026-04-03"></a>
+### April 3, 2026 - production-facing interpretation pass
+
+1. Kept algorithms stable and updated interpretation/output wording for finance use.
+2. Mapped tagged CAS to Problem 102 arbitrage stale-state protection.
+3. Mapped hazard-pointer reclamation to Problem 105 dividend/reset safety.
+4. Focus:
+- make reviewer understanding traceable from lock-free theory to market-engine behavior.
 
 ## Who this is for
 
@@ -211,3 +250,12 @@ Before using ideas like this in a trading engine, validate:
 - Hazard pointers protect node lifetime and reclamation safety.
 - Real systems often combine both ideas.
 - Correctness first, then optimize with measurement discipline.
+
+## April 3, 2026 integration notes (Problems 102 and 105)
+
+The current `3.cpp` output now explicitly maps lock-free techniques to the finance scenarios:
+
+1. Problem 102 (Arbitrage): versioned CAS in `TaggedStack` protects against stale head observations (ABA) during rapid stack transitions.
+2. Problem 105 (Dividends and resets): hazard-pointer retire/scan flow keeps reads safe while old nodes are being replaced or removed.
+
+Operationally, this means strategy readers can continue traversing nodes while market-data logic performs updates and deferred reclamation without triggering use-after-free faults.

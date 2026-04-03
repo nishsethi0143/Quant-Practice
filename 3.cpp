@@ -359,14 +359,17 @@ int main() {
 	int b = 0;
 	hp.pop(b, 0);
 	hp.scan();
+	hp.push(300); // Simulate a post-dividend price reset write.
+	hp.scan();
 
 	std::cout << "Tagged stack pop: " << a << '\n';
 	std::cout << "Hazard stack pop: " << b << '\n';
+	std::cout << "Dividend/reset-safe node update executed via hazard-pointer retire+scan.\n";
 
 	std::cout << "\nComparison:\n";
-	std::cout << "1) Tagged pointer CAS blocks ABA by including version in CAS value.\n";
-	std::cout << "2) Hazard pointers make reclamation safe by delaying delete while any thread may still read a node.\n";
-	std::cout << "3) In production HFT engines, many systems combine both: versioned CAS + safe reclamation.\n";
+	std::cout << "1) Problem 102 Arbitrage path: tagged CAS blocks ABA via versioned head updates.\n";
+	std::cout << "2) Problem 105 Dividend resets: hazard pointers delay delete while readers may still observe old prices.\n";
+	std::cout << "3) Production engines frequently combine both: versioned CAS + safe reclamation.\n";
 
 	const std::size_t hw = std::thread::hardware_concurrency() == 0
 		? 4
@@ -390,7 +393,7 @@ int main() {
 	std::cout << "Hazard push: " << hazard_bench.push_ms << " ms, "
 		<< mops_per_sec(hazard_bench.push_ops, hazard_bench.push_ms) << " Mops/s\n";
 
-	std::cout << "\nNote: hazard pointers add reclamation overhead on pop but guarantee safe node lifetime.\n";
+	std::cout << "\nNote: hazard pointers add reclamation overhead on pop but guarantee safe node lifetime during cancels/resets.\n";
 
 	return 0;
 }
