@@ -2,6 +2,12 @@
 *.obj
 *.o
 
+# Build outputs
+output.txt
+
+# VS Code workspace settings
+.vscode/
+
 # Office autosave/temp files
 ~$*.docx
 ~$*.xlsx
